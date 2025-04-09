@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>MQTT Test Website</title>
+  <style>
+    /* Make the entire page a flex container, centering its contents */
+    html, body {
+      height: 100%;
+      margin: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: Arial, sans-serif;
+      background: #f9f9f9;
+    }
+    .content {
+      text-align: center;
+    }
+    /* Styling for the buttons row */
+    .buttons {
+      margin-top: 20px;
+    }
+    .buttons button {
+      margin: 0 10px;
+      padding: 10px 20px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <div class="content">
+    <!-- Title and body text elements which will be updated -->
+    <h1 id="title">Default Title</h1>
+    <p id="body">Default body text</p>
+    
+    <!-- Row with three buttons -->
+    <div class="buttons">
+      <button id="prev">Prev</button>
+      <button id="enter">Enter</button>
+      <button id="next">Next</button>
+    </div>
+  </div>
+  
+  <!-- Include the Paho MQTT client library from a CDN -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/paho-mqtt/1.1.0/paho-mqtt.js" integrity="sha512-p8OrcnawEEpEiY7S96nMeaShY5AMcdRFYgnaR0ZmOgMSgL9pLNE4x5+MB0FTol7GeJGzEd9m4MAmmD8urOscvQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <!-- Include your custom JavaScript logic -->
+  <script src="app.js"></script>
+</body>
+</html>
+
