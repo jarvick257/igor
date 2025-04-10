@@ -36,8 +36,10 @@ class MqttClient(InputHandler, OutputHandler):
     def _publish_content(self) -> None:
         if self._content == None or not self._client.is_connected:
             return
-        logger.info(f"Publishing {self._content}")
-        self._client.publish(MQTT_CONTENT_TOPIC, self._content.to_json(), retain=True)
+        payload = self._content.to_json()
+        logger.info(f"Publishing {self._content} on {MQTT_CONTENT_TOPIC}")
+        logger.debug(payload)
+        self._client.publish(MQTT_CONTENT_TOPIC, payload, retain=True)
 
     def on_input(self, callback: Callable[[EncoderAction], None]):
         self._input_callback = callback
