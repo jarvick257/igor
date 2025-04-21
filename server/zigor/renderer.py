@@ -1,6 +1,7 @@
 from .content import Content
 
 
-class OutputHandler:
+class Renderer:
     def render(self, content: Content):
+        _ = content
         raise NotImplementedError()

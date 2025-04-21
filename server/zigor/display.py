@@ -1,65 +1,79 @@
-from loguru import logger
-from typing import Any, Optional, Callable
+from typing import TypeVar, Generic, Any, Optional, Callable
 from .encoder import EncoderAction
 from .content import Content
 from .display_update import DisplayUpdate
 
+from .interfaces import IDisplay
 
-class Display:
+T = TypeVar("T")
+
+
+class Display(Generic[T], IDisplay):
     def __init__(self):
-        self.enabled: bool = False
-        self.update_callback: Callable[[DisplayUpdate, Display | None], None] | None = (
-            None
+        self._state: T | None
+        self._update_parent: (
+            Callable[["IDisplay", DisplayUpdate, Optional["IDisplay"]], None] | None
         )
 
-    def enable(self) -> None:
-        self.enabled = True
+    @property
+    def state(self) -> T:
+        assert self._state is not None, "Can't access state before registered"
+        assert self._update_parent is not None
+        return self._state
 
-    def disable(self) -> None:
-        self.enabled = False
+    def register(
+        self,
+        state: Any,
+        callback: Callable[["IDisplay", DisplayUpdate, Optional["IDisplay"]], None],
+    ) -> None:
+        self._state = state
+        self._update_parent = callback
+        self.on_registered()
 
-    def on_input(self, action: EncoderAction, state: Any) -> None:
+    def unregister(self):
+        self._update_parent = None
+        self._state = None
+        self.on_unregistered()
+
+    def on_registered(self):
+        pass
+
+    def on_unregistered(self):
+        pass
+
+    def on_input(self, action: EncoderAction) -> None:
         if action == EncoderAction.NONE:
-            self.on_nop(state)
+            self.on_nop()
         elif action == EncoderAction.ENTER:
-            self.on_enter(state)
+            self.on_enter()
         elif action == EncoderAction.NEXT:
-            self.on_next(state)
+            self.on_next()
         elif action == EncoderAction.PREV:
-            self.on_prev(state)
+            self.on_prev()
 
-    def on_nop(self, state: Any) -> None:
-        _ = state
+    def on_nop(self) -> None:
+        pass
 
-    def on_enter(self, state: Any) -> None:
-        _ = state
+    def on_enter(self) -> None:
+        pass
 
-    def on_next(self, state: Any) -> None:
-        _ = state
+    def on_next(self) -> None:
+        pass
 
-    def on_prev(self, state: Any) -> None:
-        _ = state
+    def on_prev(self) -> None:
+        pass
 
-    def get_content(self, state: Any) -> Content:
-        _ = state
+    def render(self) -> Content:
         raise NotImplementedError()
 
-    def _update(self, op: DisplayUpdate, display: Optional["Display"] = None):
-        if not self.enabled or self.update_callback is None:
-            logger.warning(
-                f"Ignoring {op}. enabled: {self.enabled=} - callback: {self.update_callback is not None}"
-            )
-            return
-        self.update_callback(op, display)
-
-    def skip(self):
-        self._update(DisplayUpdate.NONE)
-
     def pop(self):
-        self._update(DisplayUpdate.POP)
+        assert self._update_parent is not None
+        self._update_parent(self, DisplayUpdate.POP, None)
 
-    def push(self, display: "Display"):
-        self._update(DisplayUpdate.PUSH, display)
+    def push(self, display: IDisplay):
+        assert self._update_parent is not None
+        self._update_parent(self, DisplayUpdate.PUSH, display)
 
     def refresh(self):
-        self._update(DisplayUpdate.UPDATE)
+        assert self._update_parent is not None
+        self._update_parent(self, DisplayUpdate.UPDATE, None)

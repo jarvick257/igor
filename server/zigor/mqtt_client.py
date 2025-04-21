@@ -6,11 +6,11 @@ from loguru import logger
 from .encoder import EncoderAction
 from .content import Content
 from .input_handler import InputHandler
-from .output_handler import OutputHandler
+from .renderer import Renderer
 from .const import *
 
 
-class MqttClient(InputHandler, OutputHandler):
+class MqttClient(InputHandler, Renderer):
     def __init__(self, host: str, port: int):
         self._host = host
         self._port = port
@@ -51,4 +51,10 @@ class MqttClient(InputHandler, OutputHandler):
     def run(self) -> None:
         logger.info(f"Connecting to MQTT Broker at {self._host}:{self._port}")
         self._client.connect(host=self._host, port=self._port)
-        self._client.loop_forever()
+        try:
+            self._client.loop_forever()
+        except KeyboardInterrupt:
+            logger.info(f"Caught Keyboard Interrupt")
+        except Exception as e:
+            logger.error(f"Error: {e}")
+            raise

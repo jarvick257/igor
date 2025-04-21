@@ -1,49 +1,45 @@
-from typing import NoReturn
-from dataclasses import dataclass
-
-from .display_update import DisplayUpdate
+from typing import Callable, Any, Optional
 
 from .encoder import EncoderAction
-from .display_stack import DisplayStack
-from .display import Display
-
+from .interfaces import IDisplay
+from .content import Content
+from .display_update import DisplayUpdate
 from .input_handler import InputHandler
-from .output_handler import OutputHandler
+from .renderer import Renderer
+from .module import Module
 
 
 class App:
-    def __init__(
-        self, state, input_handler: InputHandler, output_handler: OutputHandler
-    ):
-        self.state = state
-        self.stack = DisplayStack()
-        self.output_handler = output_handler
+    def __init__(self, input_handler: InputHandler, renderer: Renderer):
+        self.renderer: Renderer = renderer
         self.input_handler = input_handler
         self.input_handler.on_input(self._on_input)
+        self.module: Module | None = None
 
     def _on_input(self, action: EncoderAction) -> None:
-        self.stack.peek().on_input(action, self.state)
+        if self.module is not None:
+            self.module.on_input(action)
 
-    def _on_update(self, op: DisplayUpdate, display: Display | None) -> None:
-        if op == DisplayUpdate.NONE:
-            return
-        elif op == DisplayUpdate.UPDATE:
-            pass
-        elif op == DisplayUpdate.PUSH:
-            assert display != None
-            self._add_display(display)
-        elif op == DisplayUpdate.POP:
-            self.stack.pop()
+    def _on_module_update(
+        self,
+        sender: IDisplay,
+        op: DisplayUpdate,
+        new_display: IDisplay | None,
+    ):
+        assert sender is self.module
+        assert op == DisplayUpdate.UPDATE
+        assert new_display is None
         self._render()
 
     def _render(self):
-        self.output_handler.render(self.stack.peek().get_content(self.state))
+        assert self.module is not None
+        self.renderer.render(self.module.render())
 
-    def _add_display(self, display: Display) -> None:
-        display.update_callback = self._on_update
-        self.stack.push(display)
+    def run(self, state: Any, display: IDisplay) -> None:
+        self.run_module(Module(state, display))
 
-    def run(self, display: Display) -> None:
-        self._add_display(display)
+    def run_module(self, module: Module) -> None:
+        self.module = module
+        self.module.register(None, self._on_module_update)
         self._render()
         self.input_handler.run()
