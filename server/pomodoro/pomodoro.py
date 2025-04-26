@@ -8,7 +8,7 @@ class PomodoroState:
     foo = "bar"
 
 
-class PomodoroMain(zigor.Display[PomodoroState]):
+class PomodoroMain(zigor.Screen[PomodoroState]):
     def render(self) -> zigor.Content:
         return zigor.Content("Pomodoro", f"Hello from {self.state.foo}")
 

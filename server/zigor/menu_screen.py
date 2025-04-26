@@ -1,11 +1,11 @@
 from typing import List, Any, TypeVar
-from .display import Display
+from .screen import Screen
 from .content import Content
 
 T = TypeVar("T")
 
 
-class MenuDisplay(Display[T]):
+class MenuScreen(Screen[T]):
     def __init__(self, title: str, options: List[str]):
         super().__init__()
         self.title: str = title

@@ -1,7 +1,7 @@
 from typing import Callable, Any, Optional
 
 from .encoder import EncoderAction
-from .interfaces import IDisplay
+from .display import Display
 from .content import Content
 from .display_update import DisplayUpdate
 from .input_handler import InputHandler
@@ -22,9 +22,9 @@ class App:
 
     def _on_module_update(
         self,
-        sender: IDisplay,
+        sender: Display,
         op: DisplayUpdate,
-        new_display: IDisplay | None,
+        new_display: Display | None,
     ):
         assert sender is self.module
         assert op == DisplayUpdate.UPDATE
@@ -35,11 +35,11 @@ class App:
         assert self.module is not None
         self.renderer.render(self.module.render())
 
-    def run(self, state: Any, display: IDisplay) -> None:
+    def run(self, state: Any, display: Display) -> None:
         self.run_module(Module(state, display))
 
     def run_module(self, module: Module) -> None:
         self.module = module
-        self.module.register(None, self._on_module_update)
+        self.module.attach(None, self._on_module_update)
         self._render()
         self.input_handler.run()

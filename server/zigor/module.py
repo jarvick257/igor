@@ -4,33 +4,33 @@ from .content import Content
 from .display_update import DisplayUpdate
 from .encoder import EncoderAction
 
-from .interfaces import IDisplay
+from .display import Display
 
 T = TypeVar("T")
 
 
-class Module(Generic[T], IDisplay):
-    def __init__(self, module_state: T, display: IDisplay):
+class Module(Generic[T], Display):
+    def __init__(self, module_state: T, display: Display):
         self.state: T = module_state
-        self.stack: List[IDisplay] = []
+        self.stack: List[Display] = []
         self._update_parent = None
         self._push(display)
 
-    def _push(self, display: IDisplay) -> None:
+    def _push(self, display: Display) -> None:
         self.stack.append(display)
         if self._update_parent is not None:
-            display.register(self.state, self._on_child_update)
+            display.attach(self.state, self._on_child_update)
             self._refresh()
 
     def _pop(self) -> None:
         if len(self.stack) > 1:
-            self.stack[-1].unregister()
+            self.stack[-1].detach()
             self.stack = self.stack[:-1]
             self._refresh()
         elif self._update_parent:
             self._update_parent(self, DisplayUpdate.POP, None)
 
-    def _peek(self) -> IDisplay:
+    def _peek(self) -> Display:
         assert len(self.stack) > 0
         return self.stack[-1]
 
@@ -40,20 +40,20 @@ class Module(Generic[T], IDisplay):
     def render(self) -> Content:
         return self._peek().render()
 
-    def register(
+    def attach(
         self,
         state: Any,
-        callback: Callable[["IDisplay", DisplayUpdate, Optional["IDisplay"]], None],
+        callback: Callable[["Display", DisplayUpdate, Optional["Display"]], None],
     ) -> None:
         _ = state
         self._update_parent = callback
         for child in self.stack:
-            child.register(self.state, self._on_child_update)
+            child.attach(self.state, self._on_child_update)
 
-    def unregister(self):
+    def detach(self):
         self._update_parent = None
         for child in self.stack:
-            child.unregister()
+            child.detach()
 
     def _refresh(self):
         if self._update_parent is not None:
@@ -61,9 +61,9 @@ class Module(Generic[T], IDisplay):
 
     def _on_child_update(
         self,
-        sender: IDisplay,
+        sender: Display,
         op: DisplayUpdate,
-        new_display: IDisplay | None,
+        new_display: Display | None,
     ):
         current_display = self._peek()
         if op == DisplayUpdate.PUSH:

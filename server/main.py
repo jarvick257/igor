@@ -11,20 +11,19 @@ class CounterState:
     count: int = 0
 
 
-class CounterEditDisplay(zigor.Display[CounterState]):
+class CounterEditDisplay(zigor.Screen[CounterState]):
     def __init__(self):
         self.counter = 0
         self.stopped = Event()
 
-    def on_registered(self):
-        print("Registered Counter")
+    def on_attach(self):
         self.counter = self.state.count
         self.stopped = Event()
         self.timer = Thread(target=self.timeout)
         self.timer.start()
 
-    def on_unregistered(self):
-        print("UNRegistered Counter")
+    def on_detach(self):
+        pass
 
     def timeout(self):
         while not self.stopped.wait(1.0):
@@ -60,17 +59,22 @@ class AppState:
     pomodoro = Pomodoro()
 
 
-class HomeDisplay(zigor.MenuDisplay[AppState]):
+class HomeDisplay(zigor.MenuScreen[AppState]):
     def __init__(self):
         super().__init__("Home", ["Submenu", "Counter", "Pomodoro"])
+
+    @property
+    def counter(self):
+        return self.state.counter.state
+
+    @property
+    def pomodoro(self):
+        return self.state.pomodoro.state
 
     def render(self) -> zigor.Content:
         text: str = self.selection
         if self.selection == "Counter":
-            if self.state.counter is None:
-                text = f"Counter: 0"
-            else:
-                text = f"Counter: {self.state.counter.state.count}"
+            text = f"Counter: {self.counter.count}"
         elif self.selection == "Pomodoro":
             return self.state.pomodoro.preview()
         return zigor.Content(self.title, text)
@@ -86,7 +90,7 @@ class HomeDisplay(zigor.MenuDisplay[AppState]):
                 self.push(SubmenuDisplay())
 
 
-class SubmenuDisplay(zigor.MenuDisplay):
+class SubmenuDisplay(zigor.MenuScreen):
     def __init__(self):
         super().__init__("Submenu", ["Option1", "Option2", "Option3", "Go Back"])
 

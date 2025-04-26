@@ -1,1 +1,1 @@
-from .module import Pomodoro
+from .pomodoro import Pomodoro

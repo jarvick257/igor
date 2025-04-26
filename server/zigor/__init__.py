@@ -1,5 +1,5 @@
-from .display import Display
-from .menu_display import MenuDisplay
+from .screen import Screen
+from .menu_screen import MenuScreen
 from .app import App
 from .mqtt_client import MqttClient
 from .content import Content
