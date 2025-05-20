@@ -6,3 +6,4 @@ class DisplayUpdate(Enum):
     UPDATE = 1
     POP = 2
     PUSH = 3
+    REPLACE = 4

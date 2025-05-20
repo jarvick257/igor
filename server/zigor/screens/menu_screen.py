@@ -1,6 +1,6 @@
-from typing import List, Any, TypeVar
-from .screen import Screen
-from .content import Content
+from typing import List, TypeVar
+from zigor import Content
+from zigor.screens import Screen
 
 T = TypeVar("T")
 
@@ -15,6 +15,14 @@ class MenuScreen(Screen[T]):
     @property
     def selection(self) -> str:
         return self._options[self._counter]
+
+    def pop(self):
+        # Overwrite and reset selection so we start with the first menu entry the next time we enter
+        self.reset_selection()
+        super().pop()
+
+    def reset_selection(self):
+        self._counter = 0
 
     def render(self) -> Content:
         return Content(self.title, self._options[self._counter])
