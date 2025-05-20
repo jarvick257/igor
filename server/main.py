@@ -1,7 +1,7 @@
-from typing import Dict, List, Callable, Any
 from dataclasses import dataclass
-from threading import Thread, Event
+
 import zigor
+from zigor.screens import MenuScreen, AutoRefreshScreen
 
 from pomodoro import Pomodoro
 
@@ -11,31 +11,22 @@ class CounterState:
     count: int = 0
 
 
-class CounterEditDisplay(zigor.Screen[CounterState]):
+class CounterEditDisplay(AutoRefreshScreen[CounterState]):
     def __init__(self):
+        super().__init__(1.0)
         self.counter = 0
-        self.stopped = Event()
 
     def on_attach(self):
         self.counter = self.state.count
-        self.stopped = Event()
-        self.timer = Thread(target=self.timeout)
-        self.timer.start()
+        super().on_attach()
 
-    def on_detach(self):
-        pass
-
-    def timeout(self):
-        while not self.stopped.wait(1.0):
-            self.counter += 1
-            self.refresh()
+    def on_timeout(self):
+        self.counter += 1
 
     def render(self) -> zigor.Content:
         return zigor.Content("Set Counter", f"{self.state.count} -> {self.counter}")
 
     def on_enter(self):
-        self.stopped.set()
-        self.timer.join()
         self.state.count = self.counter
         self.pop()
 
@@ -59,7 +50,7 @@ class AppState:
     pomodoro = Pomodoro()
 
 
-class HomeDisplay(zigor.MenuScreen[AppState]):
+class HomeDisplay(MenuScreen[AppState]):
     def __init__(self):
         super().__init__("Home", ["Submenu", "Counter", "Pomodoro"])
 
@@ -75,12 +66,9 @@ class HomeDisplay(zigor.MenuScreen[AppState]):
         text: str = self.selection
         if self.selection == "Counter":
             text = f"Counter: {self.counter.count}"
-        elif self.selection == "Pomodoro":
-            return self.state.pomodoro.preview()
         return zigor.Content(self.title, text)
 
     def on_enter(self):
-        print(self.state)
         match self.selection:
             case "Counter":
                 self.push(self.state.counter)
@@ -90,7 +78,7 @@ class HomeDisplay(zigor.MenuScreen[AppState]):
                 self.push(SubmenuDisplay())
 
 
-class SubmenuDisplay(zigor.MenuScreen):
+class SubmenuDisplay(MenuScreen):
     def __init__(self):
         super().__init__("Submenu", ["Option1", "Option2", "Option3", "Go Back"])
 
