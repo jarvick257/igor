@@ -3,8 +3,8 @@ from datetime import datetime, timedelta
 from typing import List
 from dataclasses import dataclass
 
-from zigor import Content, Module, Timer
-from zigor.screens import (
+from rigor import Content, Module, Timer
+from rigor.screens import (
     InputNumberScreen,
     MenuScreen,
     TimedScreen,

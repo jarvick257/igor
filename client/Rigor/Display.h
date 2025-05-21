@@ -82,7 +82,7 @@ private:
     int x = (m_width - text_width) / 2; // Center the text on the top row
     x = std::max(x, 0);
     m_display.setTextSize(font_size);     // Larger size for top row
-    m_display.setCursor(x, row * 30 + 2); // Centered on top row
+    m_display.setCursor(x, row * 35); // Centered on top row
     m_display.print(text.c_str());
   }
 

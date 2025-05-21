@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 
-import zigor
-from zigor.screens import MenuScreen, AutoRefreshScreen
+from rigor import Content, Module, App, MqttClient
+from rigor.screens import MenuScreen, AutoRefreshScreen
 
 from pomodoro import Pomodoro
 
@@ -23,8 +23,8 @@ class CounterEditDisplay(AutoRefreshScreen[CounterState]):
     def on_timeout(self):
         self.counter += 1
 
-    def render(self) -> zigor.Content:
-        return zigor.Content("Set Counter", f"{self.state.count} -> {self.counter}")
+    def render(self) -> Content:
+        return Content("Set Counter", f"{self.state.count} -> {self.counter}")
 
     def on_enter(self):
         self.state.count = self.counter
@@ -39,7 +39,7 @@ class CounterEditDisplay(AutoRefreshScreen[CounterState]):
         self.refresh()
 
 
-class CounterModule(zigor.Module[CounterState]):
+class CounterModule(Module[CounterState]):
     def __init__(self, initial_count: int = 0):
         super().__init__(CounterState(initial_count), CounterEditDisplay())
 
@@ -62,11 +62,11 @@ class HomeDisplay(MenuScreen[AppState]):
     def pomodoro(self):
         return self.state.pomodoro.state
 
-    def render(self) -> zigor.Content:
+    def render(self) -> Content:
         text: str = self.selection
         if self.selection == "Counter":
             text = f"Counter: {self.counter.count}"
-        return zigor.Content(self.title, text)
+        return Content(self.title, text)
 
     def on_enter(self):
         match self.selection:
@@ -87,6 +87,6 @@ class SubmenuDisplay(MenuScreen):
             self.pop()
 
 
-mqtt_client = zigor.MqttClient("192.168.1.2", 1883)
-app = zigor.App(mqtt_client, mqtt_client)
+mqtt_client = MqttClient("192.168.1.2", 1883)
+app = App(mqtt_client, mqtt_client)
 app.run(AppState(), HomeDisplay())

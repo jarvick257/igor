@@ -1,6 +1,6 @@
 from typing import List, TypeVar
-from zigor import Content
-from zigor.screens import Screen
+from rigor import Content
+from rigor.screens import Screen
 
 T = TypeVar("T")
 

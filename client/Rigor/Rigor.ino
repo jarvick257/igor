@@ -7,11 +7,11 @@
 #include "EspMQTTClient.h"
 #include "LEAmDNS.h"
 #include "PubSubClient.h"
-#include "secrets.h"
+#include "Secrets.h"
 #include "Display.h"
 #include "RotaryEncoder.h"
 
-#define DEVICE_NAME "zigor/client"
+#define DEVICE_NAME "rigor/client"
 
 #define CLK    D6
 #define DT     D7
@@ -19,7 +19,7 @@
 
 Display display{};
 RotaryEncoder encoder{CLK, DT, SW};
-EspMQTTClient client(WIFI_SSID, WIFI_PSK, BROKER_IP, DEVICE_NAME);
+EspMQTTClient mqtt(WIFI_SSID, WIFI_PSK, BROKER_IP, DEVICE_NAME);
 
 void handleRotaryInput() {
   auto rotation = encoder.getRotation();
@@ -31,14 +31,14 @@ void handleRotaryInput() {
   else if (rotation == 1) action = "NEXT";
 
   if(action == nullptr) return;
-  client.publish("zigor/input", String(action), false);
+  mqtt.publish("rigor/input", String(action), false);
   Serial.print("Published ");
   Serial.println(String(action));
 }
 
 void onConnectionEstablished() {
   Serial.println("MQTT Connected");
-  client.subscribe("zigor/screen", [](const String &payload) {
+  mqtt.subscribe("rigor/screen", [](const String &payload) {
     Serial.print("Screen: ");
     Serial.println(String(payload));
 
@@ -53,23 +53,27 @@ void setup() {
   Serial.begin(9600);
 
   display.init();
-  display.update("IGOR", "Welcome");
+  display.update("RIGOR", "Welcome");
+  display.show();
   Serial.println("Setup complete, starting loop...");
-  client.setKeepAlive(60);
+  mqtt.setKeepAlive(60);
 }
 
 void loop() {
   static bool was_connected = false;
-  client.loop();
+  mqtt.loop();
 
-  if (false == client.isMqttConnected()) {
-    Serial.println("Waiting for connection...");
-    delay(500);
+  if (false == mqtt.isMqttConnected()) {
+    display.update("RIGOR", "Connecting");
+    display.show();
+    delay(100);
     return;
   }
 
   if(!was_connected){
-    display.successAnimation("I.G.O.R.");
+    display.update("RIGOR", "Welcome");
+    display.show();
+    delay(1000);
     was_connected = true;
   }
 
@@ -77,5 +81,3 @@ void loop() {
   handleRotaryInput();
   display.show();
 }
-
-

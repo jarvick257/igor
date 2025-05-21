@@ -1,7 +1,7 @@
 from typing import Callable
 
-from zigor import Content
-from zigor.screens import Screen
+from rigor import Content
+from rigor.screens import Screen
 
 
 class InputNumberScreen(Screen[None]):

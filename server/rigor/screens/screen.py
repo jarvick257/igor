@@ -1,9 +1,9 @@
 from typing import TypeVar, Generic, Any, Optional, Callable
 
-from zigor.encoder import EncoderAction
-from zigor.content import Content
-from zigor.display_update import DisplayUpdate
-from zigor.display import Display
+from rigor.encoder import EncoderAction
+from rigor.content import Content
+from rigor.display_update import DisplayUpdate
+from rigor.display import Display
 
 T = TypeVar("T")
 

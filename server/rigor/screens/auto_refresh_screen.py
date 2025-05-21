@@ -1,6 +1,6 @@
 from typing import TypeVar
-from zigor.screens import Screen
-from zigor import Timer
+from rigor.screens import Screen
+from rigor import Timer
 
 T = TypeVar("T")
 

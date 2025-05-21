@@ -11,7 +11,7 @@ T = TypeVar("T")
 
 class Module(Generic[T], Display):
     """
-    The Module class represents a module that can be added to the zigor device.
+    The Module class represents a module that can be added to the rigor device.
     It maintains a stack of displays and sends input from the rotary encoder to the server.
     """
 
