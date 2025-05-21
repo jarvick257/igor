@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+import os
 
 from rigor import Content, Module, App, MqttClient
 from rigor.screens import MenuScreen, AutoRefreshScreen, TimedScreen
@@ -90,6 +91,9 @@ class SubmenuDisplay(MenuScreen):
             self.pop()
 
 
-mqtt_client = MqttClient("192.168.1.2", 1883)
+mqtt_client = MqttClient(
+    os.environ.get("MQTT_HOST", "127.0.0.1"),
+    int(os.environ.get("MQTT_PORT", "1883")),
+)
 app = App(mqtt_client, mqtt_client)
 app.run(AppState(), HomeDisplay())

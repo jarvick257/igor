@@ -1,0 +1,20 @@
+services:
+  rigor:
+    image: project-rigor/server
+    container_name: rigor
+    restart: unless-stopped
+    build: .
+    environment:
+      - MQTT_HOST=192.168.1.5
+      - MQTT_PORT=1883
+  mosquitto:
+    image: eclipse-mosquitto
+    container_name: mosquitto
+    restart: unless-stopped
+    ports:
+      - 1883:1883
+    # volumes:
+    #   - ~/smrthome/config/mosquitto/config:/mosquitto/config
+    #   - ~/smrthome/config/mosquitto/data:/mosquitto/data
+
+
