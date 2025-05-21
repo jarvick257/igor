@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 
 from rigor import Content, Module, App, MqttClient
-from rigor.screens import MenuScreen, AutoRefreshScreen
+from rigor.screens import MenuScreen, AutoRefreshScreen, TimedScreen
 
 from pomodoro import Pomodoro
 
@@ -80,9 +80,12 @@ class HomeDisplay(MenuScreen[AppState]):
 
 class SubmenuDisplay(MenuScreen):
     def __init__(self):
-        super().__init__("Submenu", ["Option1", "Option2", "Option3", "Go Back"])
+        super().__init__("Submenu", ["Save", "Option2", "Option3", "Go Back"])
 
     def on_enter(self):
+        if self.selection == "Save":
+            self.replace(TimedScreen(1, "Success", "Saved"))
+
         if self.selection == "Go Back":
             self.pop()
 
