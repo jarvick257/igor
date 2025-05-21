@@ -5,10 +5,9 @@ setup(
     version="0.1",
     packages=find_packages(),
     install_requires=["loguru", "paho-mqtt"],
-    author="Your Name",
-    author_email="your.email@example.com",
-    description="A short description of your package",
-    long_description=open("README.md").read(),
+    author="jarvick257",
+    description="Project RIGOR - The Remote IGOR",
+    long_description=open("../README.md").read(),
     long_description_content_type="text/markdown",
     url="https://github.com/jarvick257/rigor",
     classifiers=[
